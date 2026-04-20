@@ -56,7 +56,9 @@ public class OnboardingServiceImpl implements OnboardingService {
         long count = repository.countAll() + 1;
         record.setOnboardingId(String.format("ONB-%03d", count));
 
-        record.setAssignedEmployeeId(candidate.getCandidateId());
+        // Store candidate ID to track which candidate this onboarding is for
+        // assigned_employee_id will be set later when employee is created after onboarding approval
+        record.setAssignedEmployeeId(candidateId);
         record.setEmployeeName(candidate.getCandidateName());
 
         record.setPipelineStatus(OnboardingRecord.PipelineStatus.EMPLOYEE_ASSIGNED);

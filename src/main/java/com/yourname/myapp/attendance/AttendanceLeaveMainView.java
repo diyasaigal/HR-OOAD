@@ -41,7 +41,16 @@ public class AttendanceLeaveMainView extends JPanel {
 
         tabs.addTab("📊 Dashboard", new LeaveDashboardView(leaveService));
         tabs.addTab("📋 Log Attendance", new AttendanceLogForm(attendanceService));
-        tabs.addTab("🗓 Attendance History", new AttendanceHistoryView(attendanceService));
+        AttendanceHistoryView attendanceHistoryView = new AttendanceHistoryView(attendanceService);
+        tabs.addTab("🗓 Attendance History", attendanceHistoryView);
+        
+        // Refresh attendance history when tab is selected
+        tabs.addChangeListener(e -> {
+            if (tabs.getSelectedIndex() == 2) { // Attendance History tab
+                attendanceHistoryView.refresh();
+            }
+        });
+        
         tabs.addTab("📝 Request Leave", new LeaveRequestForm(leaveService));
         tabs.addTab("📁 Leave Requests", new LeaveListView(leaveService, facade));
 

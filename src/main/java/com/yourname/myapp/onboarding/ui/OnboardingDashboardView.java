@@ -157,6 +157,7 @@ public class OnboardingDashboardView {
         });
 
         JButton delete = new JButton("Delete Record");
+        delete.setForeground(Color.BLACK);
         delete.addActionListener(e -> {
 
             int row = table.getSelectedRow();

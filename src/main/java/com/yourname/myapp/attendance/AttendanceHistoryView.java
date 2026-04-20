@@ -22,7 +22,8 @@ public class AttendanceHistoryView extends JPanel {
     public AttendanceHistoryView(AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
         initUI();
-        loadAll();
+        // Load data after UI is fully initialized
+        SwingUtilities.invokeLater(this::loadAll);
     }
 
     private void initUI() {
@@ -86,6 +87,10 @@ public class AttendanceHistoryView extends JPanel {
     private void loadAll() {
         List<AttendanceRecord> records = attendanceService.getAllAttendance();
         populateTable(records);
+    }
+
+    public void refresh() {
+        loadAll();
     }
 
     private void filterByEmployee() {

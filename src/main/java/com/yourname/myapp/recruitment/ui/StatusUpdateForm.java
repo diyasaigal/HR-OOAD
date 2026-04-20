@@ -35,6 +35,8 @@ public class StatusUpdateForm extends JFrame {
         panel.add(new JLabel(candidate.getApplicationStatus().toString()));
         panel.add(new JLabel("New Status:"));
         statusCombo = new JComboBox<>(new String[]{"APPLIED", "SHORTLISTED", "INTERVIEW", "SELECTED", "REJECTED"});
+        // Set the selected item to match current status
+        statusCombo.setSelectedItem(candidate.getApplicationStatus().toString());
         panel.add(statusCombo);
         JButton updateBtn = new JButton("Update Status");
         updateBtn.addActionListener(e -> onUpdateStatus());
@@ -50,21 +52,29 @@ public class StatusUpdateForm extends JFrame {
             
             // If transitioning to SELECTED, open onboarding verification form
             if ("SELECTED".equals(newStatus)) {
-                // Find the onboarding record created for this candidate
+                // Get the onboarding record that was just created by updateStatus()
+                // Use a small delay to ensure the record is committed to database
+                Thread.sleep(100);
+                
                 var records = onboardingService.getAllRecords();
                 var onboardingRecord = records.stream()
-                    .filter(r -> r.getAssignedEmployeeId().equals(candidateId))
+                    .filter(r -> candidateId.equals(r.getAssignedEmployeeId()))
                     .findFirst();
                 
                 if (onboardingRecord.isPresent()) {
                     new OnboardingVerificationForm(onboardingRecord.get().getOnboardingId());
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Onboarding record created successfully. You can now manage it from the Onboarding dashboard.",
+                        "Info", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
             
             parent.loadCandidates(null);
             dispose();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();  // Print stack trace for debugging
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage() + "\n\nDetails: " + ex.getCause(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

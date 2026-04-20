@@ -163,6 +163,7 @@ public class EmployeeListView {
         buttonBar.setBorder(BorderFactory.createLineBorder(new Color(221, 221, 221)));
 
         JButton editButton = new JButton("Edit");
+        editButton.setForeground(Color.BLACK);
         editButton.addActionListener(e -> {
             Employee selected = getSelectedEmployee();
             if (selected != null) {
@@ -176,7 +177,7 @@ public class EmployeeListView {
 
         JButton deleteButton = new JButton("Delete");
         deleteButton.setBackground(new Color(231, 76, 60));
-        deleteButton.setForeground(Color.WHITE);
+        deleteButton.setForeground(Color.BLACK);
         deleteButton.addActionListener(e -> {
             Employee selected = getSelectedEmployee();
             if (selected != null) {

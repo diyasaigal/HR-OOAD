@@ -78,6 +78,16 @@ public class EmployeeManagementApp extends JFrame {
             performanceManagementView = new PerformanceManagementView();
             workforcePlanningView = new WorkforcePlanningView();
 
+            // Setup edit callback for employee list view
+            employeeListView.setOnEditCallback(() -> {
+                com.yourname.myapp.entity.Employee selected = employeeListView.getSelectedEmployee();
+                if (selected != null) {
+                    EmployeeEditForm editForm = new EmployeeEditForm(this, employeeService, selected);
+                    editForm.setOnSaveCallback(() -> employeeListView.refresh());
+                    editForm.setVisible(true);
+                }
+            });
+
             // Set initial view (Dashboard)
             switchToView(dashboardView.getRootPane(), dashboardView);
             

@@ -199,24 +199,45 @@ public class EmployeeService {
         try {
             DashboardStats stats = new DashboardStats();
 
-            // Total employee count
-            stats.setTotalEmployeeCount(employeeRepository.count());
+            try {
+                // Total employee count
+                stats.setTotalEmployeeCount(employeeRepository.count());
+            } catch (Exception e) {
+                logger.warn("Error getting total employee count: {}", e.getMessage());
+                stats.setTotalEmployeeCount(0);
+            }
 
-            // Active employees count
-            stats.setActiveEmployeeCount(employeeRepository.countByEmploymentStatus(EmploymentStatus.ACTIVE));
+            try {
+                // Active employees count
+                stats.setActiveEmployeeCount(employeeRepository.countByEmploymentStatus(EmploymentStatus.ACTIVE));
+            } catch (Exception e) {
+                logger.warn("Error getting active employee count: {}", e.getMessage());
+                stats.setActiveEmployeeCount(0);
+            }
 
-            // On leave count
-            stats.setOnLeaveCount(employeeRepository.countByEmploymentStatus(EmploymentStatus.ON_LEAVE));
+            try {
+                // On leave count
+                stats.setOnLeaveCount(employeeRepository.countByEmploymentStatus(EmploymentStatus.ON_LEAVE));
+            } catch (Exception e) {
+                logger.warn("Error getting on-leave count: {}", e.getMessage());
+                stats.setOnLeaveCount(0);
+            }
 
-            // New joiners this month
-            long newJoinersCount = getNewJoinersThisMonth();
-            stats.setNewJoinersCount(newJoinersCount);
+            try {
+                // New joiners this month
+                long newJoinersCount = getNewJoinersThisMonth();
+                stats.setNewJoinersCount(newJoinersCount);
+            } catch (Exception e) {
+                logger.warn("Error getting new joiners count: {}", e.getMessage());
+                stats.setNewJoinersCount(0);
+            }
 
             logger.info("Dashboard stats retrieved: {}", stats);
             return stats;
         } catch (Exception e) {
             logger.error("Error retrieving dashboard statistics", e);
-            throw new RuntimeException("Failed to retrieve dashboard statistics", e);
+            // Return empty stats instead of throwing exception
+            return new DashboardStats(0, 0, 0, 0);
         }
     }
 

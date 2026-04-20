@@ -42,7 +42,7 @@ public class DatabaseConnection {
         // Initialize database connection settings from environment or defaults
         dbUrl = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : "jdbc:mysql://localhost:3306/eims_db";
         dbUsername = System.getenv("DB_USERNAME") != null ? System.getenv("DB_USERNAME") : "root";
-        dbPassword = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "Guggulop@9";
+        dbPassword = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "";
         
         try {
             // Load MySQL JDBC Driver

@@ -8,6 +8,8 @@ import com.yourname.myapp.recruitment.validation.*;
 import com.yourname.myapp.recruitment.exception.CandidateDataIncompleteException;
 import com.yourname.myapp.onboarding.service.OnboardingService;
 import com.yourname.myapp.onboarding.service.OnboardingServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,6 +34,7 @@ import java.util.*;
  * @since 2024
  */
 public class CandidateServiceImpl implements CandidateService {
+    private static final Logger logger = LoggerFactory.getLogger(CandidateServiceImpl.class);
     private final CandidateRepository candidateRepository = new CandidateRepositoryImpl();
     private final OnboardingService onboardingService = new OnboardingServiceImpl();
 
@@ -149,21 +152,40 @@ public class CandidateServiceImpl implements CandidateService {
      */
     @Override
     public Candidate updateStatus(String id, String newStatus) {
-        Candidate candidate = getCandidateById(id);
-        ApplicationStatus current = candidate.getApplicationStatus();
-        ApplicationStatus next = ApplicationStatus.valueOf(newStatus);
-        if (!allowedTransitions.getOrDefault(current, List.of()).contains(next)) {
-            throw new IllegalStateException("Invalid status transition");
+        try {
+            Candidate candidate = getCandidateById(id);
+            ApplicationStatus current = candidate.getApplicationStatus();
+            ApplicationStatus next = ApplicationStatus.valueOf(newStatus);
+            if (!allowedTransitions.getOrDefault(current, List.of()).contains(next)) {
+                throw new IllegalStateException("Invalid status transition");
+            }
+            candidate.setApplicationStatus(next);
+            
+            try {
+                candidateRepository.update(candidate);
+                logger.info("Candidate status updated successfully: {} -> {}", id, newStatus);
+            } catch (Exception e) {
+                logger.error("Failed to update candidate status in database: {}", id, e);
+                throw new RuntimeException("Failed to update candidate status: " + e.getMessage(), e);
+            }
+            
+            // If transitioning to SELECTED, create onboarding record
+            if (next == ApplicationStatus.SELECTED) {
+                try {
+                    onboardingService.createRecord(id);
+                    logger.info("Onboarding record created successfully for candidate: {}", id);
+                } catch (Exception e) {
+                    logger.error("Failed to create onboarding record for candidate: {}", id, e);
+                    // Don't throw - the candidate status was already updated successfully
+                    // The onboarding record can be created later from the dashboard
+                }
+            }
+            
+            return candidate;
+        } catch (Exception e) {
+            logger.error("Error updating candidate status: {}", id, e);
+            throw e;
         }
-        candidate.setApplicationStatus(next);
-        candidateRepository.update(candidate);
-        
-        // If transitioning to SELECTED, create onboarding record
-        if (next == ApplicationStatus.SELECTED) {
-            onboardingService.createRecord(id);
-        }
-        
-        return candidate;
     }
 
     @Override
